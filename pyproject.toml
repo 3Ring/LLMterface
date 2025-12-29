@@ -1,0 +1,39 @@
+[project]
+name = "LLMterface"
+version = "0.1.0"
+description = "Intentionally Simple. Generic LLM interface"
+authors = [
+    {name = "D. Zachary Wheeler",email = "celestialswashbuckler@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "pydantic (>=2.12.5,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+test = [
+  "pytest (>=9.0.2,<10.0.0)",
+  "hypothesis (>=6.148.7,<7.0.0)",
+  "pytest-cov (>=7.0.0,<8.0.0)",
+  "pytest-mock (>=3.15.1,<4.0.0)"
+]
+gemini = [
+    "google-genai (>=1.25.0,<2.0.0)"
+]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = ["--import-mode=importlib"]
+testpaths = ["tests"]
+pythonpath = ["src"]
+python_classes = "Test*"
+python_functions = "test_*"
+log_cli = true
+log_cli_level = "INFO"
