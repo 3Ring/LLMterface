@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, field_validator, SerializeAsAny
 from llmterface.models.generic_model_types import GenericModelType
 from llmterface.providers.provider_config import ProviderConfig
 from llmterface.models.simple_answers import SimpleString
+from llmterface.providers.discovery import get_provider_config
 
 TRes = t.TypeVar("TRes", bound=BaseModel)
 
@@ -99,7 +100,7 @@ class GenericConfig(BaseModel, t.Generic[TRes]):
 
         for key, value in v.items():
 
-            cfg_cls = ProviderConfig.for_provider(key)
+            cfg_cls = get_provider_config(key)
             if isinstance(value, ProviderConfig):
                 if not isinstance(value, cfg_cls):
                     value = cfg_cls.model_validate(value.model_dump())
