@@ -1,6 +1,6 @@
 [project]
 name = "llmterface-gemini"
-version = "0.1.0"
+version = "0.1.1"
 description = "Gemini provider for LLMterface"
 authors = [{ name = "D. Zachary Wheeler", email = "celestialswashbuckler@gmail.com" }]
 license = "MIT"
