@@ -65,3 +65,11 @@ class GeminiConfig(llm.ProviderConfig):
             return AllowedGeminiModels(v)
         except ValueError:
             raise ValueError(f"Invalid Gemini model type: {v}")
+
+    def __str__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(provider={self.PROVIDER}, model={self.model}, "
+            f"temperature={self.gen_content_config.temperature if self.gen_content_config else None}, "
+            f"api_key={'***' if self.api_key else None}, "
+            f"max_output_tokens={self.gen_content_config.max_output_tokens if self.gen_content_config else None}"
+        )
