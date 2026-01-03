@@ -26,7 +26,7 @@ class GenericChat(t.Generic[TChatCls]):
     @staticmethod
     def get_provider_client_config(
         config: GenericConfig,
-    ) -> type[ProviderConfig]:
+    ) -> ProviderConfig:
         if not config.provider:
             raise ValueError("Provider must be specified in the GenericConfig.")
         if override := config.provider_overrides.get(config.provider):
@@ -55,8 +55,7 @@ class GenericChat(t.Generic[TChatCls]):
                     "No configuration available for asking the question."
                 )
             if not isinstance(provider_config, ProviderConfig):
-                ProviderConfigCls = self.get_provider_client_config(provider_config)
-                provider_config = ProviderConfigCls.from_generic_config(provider_config)
+                provider_config = self.get_provider_client_config(provider_config)
             return self.client.ask(question, provider_config)
         except Exception as e:
             raise ex.ClientError(
