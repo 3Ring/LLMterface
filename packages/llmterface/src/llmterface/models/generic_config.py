@@ -132,5 +132,5 @@ class GenericConfig(BaseModel, t.Generic[TRes]):
             f"temperature={self.temperature}, api_key={'***' if self.api_key else None}, "
             f"max_input_tokens={self.max_input_tokens}, "
             f"max_output_tokens={self.max_output_tokens}, "
-            f"provider_overrides={{{', '.join(f'{k}: {str(v)}' for k, v in self.provider_overrides.items())}}}"
+            f"provider_overrides={list(k.value for k in self.provider_overrides.keys())})"
         )
