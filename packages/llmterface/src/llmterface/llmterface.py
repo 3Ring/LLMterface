@@ -12,7 +12,7 @@ from llmterface.models.simple_answers import SimpleString
 from llmterface.models.generic_chat import GenericChat
 from llmterface.models.generic_config import GenericConfig
 
-logger = logging.getLogger("ai_handler")
+logger = logging.getLogger("llmterface")
 
 TAns = t.TypeVar("TAns", bound=BaseModel)
 
