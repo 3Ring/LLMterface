@@ -10,8 +10,7 @@ from llmterface.models import simple_answers
 from llmterface.providers.provider_config import ProviderConfig
 from llmterface.providers.provider_chat import ProviderChat
 
-logger = logging.getLogger("ai_handler")
-logger.addHandler(logging.NullHandler())
+logging.getLogger("llmterface").addHandler(logging.NullHandler())
 
 
 __all__ = [
