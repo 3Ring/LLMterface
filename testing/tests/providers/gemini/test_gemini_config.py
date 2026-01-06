@@ -126,7 +126,7 @@ def test_from_generic_config_builds_generate_content_config():
     assert gcc.max_output_tokens == cfg.max_output_tokens
     assert gcc.system_instruction == cfg.system_instruction
     assert gcc.response_mime_type == "application/json"
-    assert gcc.response_json_schema == cfg.response_model.model_json_schema()
+    assert gcc.response_json_schema == cfg.get_response_schema()
 
 
 def test_gemini_config_model_validation_runs_on_init_for_generic_model():

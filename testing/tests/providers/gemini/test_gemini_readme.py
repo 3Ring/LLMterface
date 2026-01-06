@@ -1,19 +1,22 @@
 import llmterface as llm
+import pytest
+from llmterface.providers.discovery import load_provider_configs
 
-from testing.helpers.fakes import mock_all_prov
+import dotenv
+import os
+
+dotenv.load_dotenv()
+API_KEY = os.getenv("GOOGLE_API_KEY")
 
 
-def test_config():
-    llm.GenericConfig()
-
-
+@pytest.mark.integration()
 def test_readme_basic():
-    mock_all_prov()
+    load_provider_configs()
     import llmterface as llm
 
     handler = llm.LLMterface(
         config=llm.GenericConfig(
-            api_key="<YOUR GEMINI API KEY>",
+            api_key=API_KEY,
             provider="gemini",
         )
     )
@@ -24,8 +27,9 @@ def test_readme_basic():
     assert isinstance(res, str), "Response should be a string."
 
 
+@pytest.mark.integration()
 def test_readme_config_precedence():
-    mock_all_prov()
+    load_provider_configs()
     import llmterface as llm
     import llmterface_gemini as gemini
     from functools import partial
@@ -33,7 +37,7 @@ def test_readme_config_precedence():
     gemini_config = partial(
         llm.GenericConfig,
         provider=gemini.GeminiConfig.PROVIDER,
-        api_key="<YOUR GEMINI API KEY>",
+        api_key=API_KEY,
     )
     handler_config = gemini_config(response_model=int)
     chat_config = gemini_config(response_model=float)
@@ -52,14 +56,17 @@ def test_readme_config_precedence():
     assert isinstance(str_res, str), "Expected str response from question config"
 
 
+@pytest.mark.integration()
 def test_readme_vendor_override():
-    mock_all_prov()
+    load_provider_configs()
     import llmterface as llm
     import llmterface_gemini as gemini
 
-    gemini_override = gemini.GeminiConfig(
-        api_key="<YOUR GEMINI API KEY>",
-        model=gemini.GeminiTextModelType.CHAT_2_0_FLASH_LITE,
+    gemini_override = gemini.GeminiConfig.from_generic_config(
+        llm.GenericConfig(
+            api_key=API_KEY,
+            provider=gemini.GeminiConfig.PROVIDER,
+        )
     )
 
     config = llm.GenericConfig(
@@ -74,8 +81,9 @@ def test_readme_vendor_override():
     assert isinstance(res, str)
 
 
+@pytest.mark.integration()
 def test_readme_strucutured_response():
-    mock_all_prov()
+    load_provider_configs()
     from pydantic import BaseModel, Field
     import llmterface as llm
 
@@ -86,7 +94,7 @@ def test_readme_strucutured_response():
     question = llm.Question(
         question="What is the current weather in Paris?",
         config=llm.GenericConfig(
-            api_key="<YOUR API KEY>",
+            api_key=API_KEY,
             provider="gemini",
             response_model=WeatherResponse,
         ),

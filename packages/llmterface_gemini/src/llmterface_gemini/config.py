@@ -40,7 +40,7 @@ class GeminiConfig(llm.ProviderConfig):
             max_output_tokens=config.max_output_tokens,
             system_instruction=config.system_instruction,
             response_mime_type="application/json",
-            response_json_schema=config.response_model.model_json_schema(),
+            response_json_schema=config.get_response_schema(),
         )
         return cls(
             api_key=config.api_key,

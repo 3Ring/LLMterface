@@ -4,10 +4,10 @@ from pydantic import BaseModel, Field, field_validator, SerializeAsAny
 
 from llmterface.models.generic_model_types import GenericModelType
 from llmterface.providers.provider_config import ProviderConfig
-from llmterface.models.simple_answers import SimpleString
 from llmterface.providers.discovery import get_provider_config
+from llmterface.models.simple_answers import SIMPLE_MAP
 
-TRes = t.TypeVar("TRes", bound=BaseModel)
+TRes = t.TypeVar("TRes", bound=BaseModel | str | int | float | bool)
 
 
 class GenericConfig(BaseModel, t.Generic[TRes]):
@@ -80,10 +80,11 @@ class GenericConfig(BaseModel, t.Generic[TRes]):
         description="Maximum number of tokens the model is allowed to generate.",
     )
     response_model: type[TRes] = Field(
-        default=SimpleString,
+        default=str,
         description=(
-            "Pydantic model to parse and validate the model's response. "
-            "If not specified, a simple string response model is used."
+            "The expected response model type. "
+            "This can be a Pydantic model or a simple type like str, int, or float. "
+            "The model's output will be validated against this type."
         ),
     )
 
@@ -125,6 +126,41 @@ class GenericConfig(BaseModel, t.Generic[TRes]):
             return GenericModelType(v)
         except ValueError:
             raise ValueError(f"Invalid model enum value: {v}")
+
+    def get_response_schema(self) -> dict[str, t.Any]:
+        """
+        Get the JSON schema for the expected response model.
+        """
+        if not isinstance(self.response_model, type):
+            raise TypeError(
+                f"response_model must be a type, got: {type(self.response_model)}"
+            )
+        if issubclass(self.response_model, BaseModel):
+            return self.response_model.model_json_schema()
+        elif self.response_model in SIMPLE_MAP:
+            return SIMPLE_MAP[self.response_model].model_json_schema()
+        else:
+            raise NotImplementedError(
+                f"Response schema generation not implemented for type: {self.response_model}"
+            )
+
+    def validate_response(
+        self,
+        response_data: t.Any,
+    ) -> TRes:
+        """
+        Validate the response data against the expected response model.
+        """
+        if issubclass(self.response_model, BaseModel):
+            return self.response_model.model_validate(response_data)
+        elif self.response_model in SIMPLE_MAP:
+            return (
+                SIMPLE_MAP[self.response_model].model_validate(response_data).response
+            )
+        else:
+            raise NotImplementedError(
+                f"Response validation not implemented for type: {self.response_model}"
+            )
 
     def __str__(self) -> str:
         return (

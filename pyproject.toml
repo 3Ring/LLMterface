@@ -23,8 +23,11 @@ llmterface = { workspace = true }
 llmterface-gemini = { workspace = true }
 
 [tool.pytest.ini_options]
+markers = [
+    "integration: marks tests as integration tests",
+]
 minversion = "7.0"
 testpaths = ["testing/tests"]
-pythonpath = ["packages/llmterface", "packages/llmterface_gemini"]
+pythonpath = ["packages"]
 log_cli = true
 log_cli_level = "INFO"

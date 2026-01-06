@@ -13,7 +13,7 @@ pop_config = lambda: llm.GenericConfig(
     max_output_tokens=512,
     max_input_tokens=1024,
     system_instruction="You are a helpful assistant.",
-    response_model=llm.simple_answers.SimpleString,
+    response_model=str,
 )
 
 

@@ -61,21 +61,19 @@ import llmterface as llm
 
 handler = llm.LLMterface(
     config=llm.GenericConfig(
-        api_key="<YOUR API KEY>",
-        model=llm.GenericModelType.text_lite,
+        api_key="<YOUR GEMINI API KEY>",
         provider="gemini",
     )
 )
-question = llm.Question(
-    question="how many LLMs does it take to screw in a lightbulb?"
-    "\nExplain your reasoning.",
+res = handler.ask(
+    "how many LLMs does it take to screw in a lightbulb? Explain your reasoning."
 )
-res = handler.ask(question)
 print(res)
 # -> “Depends. One to do it, five to argue about alignment, and twelve to hallucinate that the room is already bright.”
 ```
-## Configuration precedence
-Configuration can be supplied at three levels:
+## Basic Configuration
+configuration of the handler is done through the `GenericConfig` class
+which can be supplied at three levels:
 
 1. Handler
 2. Chat
@@ -84,26 +82,36 @@ Configuration can be supplied at three levels:
 Overrides apply in that order, with the most specific configuration winning.
 
 ```python
-Q = "which provider are you, 'anthropic', 'openai', or 'gemini'?"
+import llmterface as llm
+import llmterface_gemini as gemini
+from functools import partial
 
-handler = llm.LLMterface(
-    config=llm.GenericConfig(
-        provider="gemini", api_key="<YOUR GEMINI API KEY>"
-    )
+gemini_config = partial(
+    llm.GenericConfig,
+    provider=gemini.GeminiConfig.PROVIDER,
+    api_key="<YOUR GEMINI API KEY>",
 )
-chat_config = llm.GenericConfig(provider="openai", api_key="<YOUR OPENAI API KEY>")
+handler_config = gemini_config(response_model=int)
+chat_config = gemini_config(response_model=float)
+handler = llm.LLMterface(config=handler_config)
 chat_id = handler.create_chat(chat_config.provider, config=chat_config)
 
+Q = "What is the airspeed velocity of an unladen swallow?"
 question = llm.Question(
     question=Q,
-    config=llm.GenericConfig(
-        provider="anthropic", api_key="<YOUR ANTHROPIC API KEY>"
-    ),
+    config=gemini_config() # response_model defaults to str
 )
+int_res = handler.ask(Q)
+print(int_res, type(int_res))
+# 42 <class 'int'>
 
-assert handler.ask(Q).response == "gemini"
-assert handler.ask(Q, chat_id=chat_id).response == "openai"
-assert handler.ask(question, chat_id=chat_id).response == "anthropic"
+float_res = handler.ask(Q, chat_id=chat_id)
+print(float_res, type(float_res))
+# 42.0 <class 'float'>
+
+str_res = handler.ask(question, chat_id=chat_id)
+print(str_res, type(str_res))
+# african or european swallow? <class 'str'>
 ```
 ## Provider-specific overrides
 
@@ -127,7 +135,7 @@ config = llm.GenericConfig(
 handler = llm.LLMterface(config=config)
 
 res = handler.ask("How many LLMs does it take to screw in a lightbulb?")
-print(res.response)
+print(res)
 # -> 6
 ```
 

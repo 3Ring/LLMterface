@@ -8,7 +8,6 @@ from pydantic import BaseModel
 
 import llmterface.exceptions as ex
 from llmterface.models.question import Question
-from llmterface.models.simple_answers import SimpleString
 from llmterface.models.generic_chat import GenericChat
 from llmterface.models.generic_config import GenericConfig
 
@@ -66,26 +65,25 @@ class LLMterface:
         self,
         question: Question[None],
         chat_id: t.Optional[str] = None,
-    ) -> SimpleString: ...
+    ) -> str: ...
     @t.overload
     def ask(
         self,
         question: str,
         chat_id: t.Optional[str] = None,
-    ) -> SimpleString: ...
+    ) -> str: ...
     def ask(
         self,
         question: Question[TAns] | str,
         chat_id: t.Optional[str] = None,
-    ) -> TAns | SimpleString:
+    ) -> TAns | str:
 
         if isinstance(question, str):
-            question: Question[SimpleString] = Question(
+            question: Question[str] = Question(
                 question=question,
             )
         if chat_id:
             chat = self.chats.get(chat_id)
-            conf = chat.config
             if not chat:
                 raise KeyError(f"Chat with id '{chat_id}' not found.")
             return self._ask(question, chat)
@@ -106,7 +104,7 @@ class LLMterface:
             try:
                 res = chat.ask(question)
                 json_res = json.loads(res.text)
-                return question.config.response_model.model_validate(json_res)
+                return question.config.validate_response(json_res)
             except ex.AiHandlerError:
                 raise
             except Exception as e:

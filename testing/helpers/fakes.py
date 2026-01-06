@@ -31,25 +31,29 @@ class FakeChat(ProviderChat):
     ) -> llm.GenericResponse:
         text = dict()
         res = None
-        if "which provider are you" in question.prompt:
-            res = question.config.provider
+        if "What is the airspeed velocity of an unladen swallow?" in question.prompt:
+            if issubclass(question.config.response_model, str):
+                res = "An African or European swallow?"
+            elif issubclass(question.config.response_model, float):
+                res = "42.0"
+            elif issubclass(question.config.response_model, int):
+                res = "42"
+            else:
+                raise NotImplementedError("Unsupported response format in FakeChat.")
         if "What is the current weather in Paris?" in question.prompt:
             text = {
                 "temperature_c": 12.0,
                 "condition": "Sunny with a chance of croissants",
             }
-        elif issubclass(
-            question.config.response_model, llm.simple_answers.SimpleString
-        ):
+        elif issubclass(question.config.response_model, str):
             text["response"] = res or "mock response"
-        elif issubclass(question.config.response_model, llm.simple_answers.SimpleFloat):
+        elif issubclass(question.config.response_model, float):
             text["response"] = res or "3.14"
-        elif issubclass(
-            question.config.response_model, llm.simple_answers.SimpleInteger
-        ):
+        elif issubclass(question.config.response_model, int):
             text["response"] = res or "42"
         else:
             raise NotImplementedError("Unsupported response format in FakeChat.")
+        print(f"FakeChat returning text: {text}")
         return llm.GenericResponse(original={}, text=json.dumps(text))
 
 

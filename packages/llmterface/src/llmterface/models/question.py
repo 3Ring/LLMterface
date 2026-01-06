@@ -7,7 +7,7 @@ import llmterface.exceptions as ex
 from llmterface.models.generic_config import GenericConfig
 from llmterface.models.generic_response import GenericResponse
 
-TRes = t.TypeVar("TRes", bound=BaseModel)
+TRes = t.TypeVar("TRes", bound=BaseModel | str | int | float | bool)
 
 
 class Question(BaseModel, t.Generic[TRes]):
@@ -41,6 +41,9 @@ class Question(BaseModel, t.Generic[TRes]):
         This method should return a new Question instance to retry with
         or None to stop retrying.
         """
+        print(response)
+        print(response.original)
+        print(response.original.text)
         if retries >= q.max_retries:
             return None
         fail_msg = "Please ensure your response strictly follows the required format."
