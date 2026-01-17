@@ -4,9 +4,9 @@ import typing as t
 from importlib.metadata import entry_points
 
 if t.TYPE_CHECKING:
-    from llmterface.providers.provider_spec import ProviderSpec
-    from llmterface.providers.provider_config import ProviderConfig
     from llmterface.providers.provider_chat import ProviderChat
+    from llmterface.providers.provider_config import ProviderConfig
+    from llmterface.providers.provider_spec import ProviderSpec
 
 ENTRYPOINT_GROUP = "llmterface.providers"
 

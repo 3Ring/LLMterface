@@ -1,11 +1,10 @@
 import typing as t
 
-from pydantic import BaseModel, Field, field_validator, SerializeAsAny, ConfigDict
-
 from llmterface.models.generic_model_types import GenericModelType
-from llmterface.providers.provider_config import ProviderConfig
-from llmterface.providers.discovery import get_provider_config
 from llmterface.models.simple_answers import SIMPLE_MAP
+from llmterface.providers.discovery import get_provider_config
+from llmterface.providers.provider_config import ProviderConfig
+from pydantic import BaseModel, ConfigDict, Field, SerializeAsAny, field_validator
 
 TRes = t.TypeVar("TRes", bound=BaseModel | str | int | float | bool)
 
@@ -64,7 +63,7 @@ class GenericConfig(BaseModel, t.Generic[TRes]):
             "lower values produce more deterministic output."
         ),
     )
-    system_instruction: t.Optional[str] = Field(
+    system_instruction: str | None = Field(
         default=None,
         description=(
             "Optional system-level instruction used to guide model behavior. "

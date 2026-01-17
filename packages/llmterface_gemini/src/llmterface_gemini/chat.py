@@ -1,13 +1,13 @@
 import typing as t
 
-from pydantic import PrivateAttr
-from google.genai.types import GenerateContentResponse
-from google.genai.client import Client as GenaiClient
 from google.genai.chats import Chat as GenaiChat
-
-from llmterface.models.question import Question
+from google.genai.client import Client as GenaiClient
+from google.genai.types import GenerateContentResponse
 from llmterface.models.generic_response import GenericResponse
+from llmterface.models.question import Question
 from llmterface.providers.provider_chat import ProviderChat
+from pydantic import PrivateAttr
+
 from llmterface_gemini.config import (
     GeminiConfig,
 )
@@ -24,10 +24,10 @@ def convert_response_to_generic(
 
 class GeminiChat(ProviderChat):
     PROVIDER: t.ClassVar[str] = GeminiConfig.PROVIDER
-    _client: t.Optional[GenaiClient] = PrivateAttr(default=None)
-    _sdk_chat: t.Optional[GenaiChat] = PrivateAttr(default=None)
+    _client: GenaiClient | None = PrivateAttr(default=None)
+    _sdk_chat: GenaiChat | None = PrivateAttr(default=None)
 
-    def ask(self, question: Question, provider_config: t.Optional[GeminiConfig] = None) -> GenericResponse:
+    def ask(self, question: Question, provider_config: GeminiConfig | None = None) -> GenericResponse:
         provider_config = provider_config or self.config
         if provider_config is None:
             raise ValueError("GeminiConfig must be provided to ask a question.")

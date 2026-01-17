@@ -1,7 +1,7 @@
-import pytest
 import llmterface as llm
+import pytest
 
-from testing.helpers.fakes import mock_all_prov, FakeProviderConfig
+from testing.helpers.fakes import FakeProviderConfig, mock_all_prov
 
 
 def test_instantiate_chat():

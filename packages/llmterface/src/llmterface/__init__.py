@@ -1,13 +1,13 @@
 import logging
 
 from llmterface.llmterface import LLMterface
-from llmterface.models.question import Question
 from llmterface.models.generic_chat import GenericChat
 from llmterface.models.generic_config import GenericConfig
 from llmterface.models.generic_model_types import GenericModelType
 from llmterface.models.generic_response import GenericResponse
-from llmterface.providers.provider_config import ProviderConfig
+from llmterface.models.question import Question
 from llmterface.providers.provider_chat import ProviderChat
+from llmterface.providers.provider_config import ProviderConfig
 
 logging.getLogger("llmterface").addHandler(logging.NullHandler())
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import typing as t
 import json
+import typing as t
 
 import llmterface as llm
 from llmterface.providers.provider_chat import ProviderChat
@@ -12,7 +12,7 @@ class FakeProviderConfig(llm.ProviderConfig):
     PROVIDER: t.ClassVar[str] = "mock"
 
     @classmethod
-    def from_generic_config(cls, config: llm.GenericConfig | None) -> "FakeProviderConfig":
+    def from_generic_config(cls, config: llm.GenericConfig | None) -> FakeProviderConfig:
         return cls()
 
 

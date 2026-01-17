@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from llmterface.providers.provider_config import ProviderConfig
 from llmterface.providers.provider_chat import ProviderChat
+from llmterface.providers.provider_config import ProviderConfig
 
 
 @dataclass(frozen=True)

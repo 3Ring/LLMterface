@@ -1,9 +1,9 @@
 import typing as t
-from pydantic import Field, field_validator
-from google.genai.types import GenerateContentConfig
-
 
 import llmterface as llm
+from google.genai.types import GenerateContentConfig
+from pydantic import Field, field_validator
+
 from llmterface_gemini.models import GeminiTextModelType
 
 AllowedGeminiModels = GeminiTextModelType
@@ -46,7 +46,7 @@ class GeminiConfig(llm.ProviderConfig):
     @classmethod
     def validate_model(
         cls, v: AllowedGeminiModels | llm.GenericModelType | str | None
-    ) -> t.Optional[GeminiTextModelType]:
+    ) -> GeminiTextModelType | None:
         if v is None:
             return None
         if isinstance(v, AllowedGeminiModels):

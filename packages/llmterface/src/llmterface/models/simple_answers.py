@@ -1,7 +1,7 @@
 import typing as t
+from abc import ABC
 
 from pydantic import BaseModel
-from abc import ABC
 
 
 class SimpleAnswersBase(BaseModel, ABC):

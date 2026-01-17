@@ -1,6 +1,6 @@
-import pytest
 import llmterface as llm
-from llmterface.providers.discovery import load_provider_configs, get_provider_config
+import pytest
+from llmterface.providers.discovery import get_provider_config, load_provider_configs
 from llmterface.providers.provider_spec import ProviderSpec
 
 load_provider_configs()

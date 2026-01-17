@@ -1,15 +1,13 @@
-import typing as t
 import logging
-from contextlib import contextmanager
+import typing as t
 import uuid
-import json
+from contextlib import contextmanager
 
 from pydantic import BaseModel
 
-import llmterface.exceptions as ex
-from llmterface.models.question import Question
 from llmterface.models.generic_chat import GenericChat
 from llmterface.models.generic_config import GenericConfig
+from llmterface.models.question import Question
 
 logger = logging.getLogger("llmterface")
 
@@ -19,8 +17,8 @@ TAns = t.TypeVar("TAns", bound=BaseModel)
 class LLMterface:
     def __init__(
         self,
-        config: t.Optional[GenericConfig] = None,
-        chats: t.Optional[dict[str, GenericChat]] = None,
+        config: GenericConfig | None = None,
+        chats: dict[str, GenericChat] | None = None,
     ):
         if chats is None:
             chats = dict()
@@ -29,7 +27,7 @@ class LLMterface:
 
     @contextmanager
     def temp_chat(
-        self, config: t.Optional[GenericConfig] = None, provider: t.Optional[str] = None
+        self, config: GenericConfig | None = None, provider: str | None = None
     ) -> t.Generator[GenericChat, None, None]:
         provider = (
             provider
@@ -61,24 +59,24 @@ class LLMterface:
     def ask(
         self,
         question: Question[TAns],
-        chat_id: t.Optional[str] = None,
+        chat_id: str | None = None,
     ) -> TAns: ...
     @t.overload
     def ask(
         self,
         question: Question[None],
-        chat_id: t.Optional[str] = None,
+        chat_id: str | None = None,
     ) -> str: ...
     @t.overload
     def ask(
         self,
         question: str,
-        chat_id: t.Optional[str] = None,
+        chat_id: str | None = None,
     ) -> str: ...
     def ask(
         self,
         question: Question[TAns] | str,
-        chat_id: t.Optional[str] = None,
+        chat_id: str | None = None,
     ) -> TAns | str:
         if isinstance(question, str):
             question: Question[str] = Question(
@@ -97,8 +95,8 @@ class LLMterface:
     def create_chat(
         self,
         provider: str,
-        config: t.Optional[GenericConfig] = None,
-        chat_id: t.Optional[str] = None,
+        config: GenericConfig | None = None,
+        chat_id: str | None = None,
     ) -> str:
         chat = GenericChat.create(provider, chat_id=chat_id or uuid.uuid4().hex, config=config)
         self.chats[chat.id] = chat

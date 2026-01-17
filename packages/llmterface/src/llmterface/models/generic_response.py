@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
 import typing as t
+from dataclasses import dataclass, field
 
 TOrig = t.TypeVar("TOrig")
 

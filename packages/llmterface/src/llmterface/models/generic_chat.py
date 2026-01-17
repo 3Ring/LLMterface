@@ -1,14 +1,13 @@
-import typing as t
 import json
+import typing as t
 
 import llmterface.exceptions as ex
-from pydantic import BaseModel
-from llmterface.models.question import Question
 from llmterface.models.generic_config import GenericConfig
-from llmterface.models.generic_response import GenericResponse
+from llmterface.models.question import Question
+from llmterface.providers.discovery import get_provider_chat, get_provider_config
 from llmterface.providers.provider_chat import ProviderChat
 from llmterface.providers.provider_config import ProviderConfig
-from llmterface.providers.discovery import get_provider_config, get_provider_chat
+from pydantic import BaseModel
 
 TChatCls = t.TypeVar("TChatCls", bound=ProviderChat)
 
@@ -19,8 +18,8 @@ class GenericChat(t.Generic[TChatCls]):
     def __init__(
         self,
         id: str,
-        client_chat: t.Optional[TChatCls] = None,
-        config: t.Optional[GenericConfig | ProviderConfig] = None,
+        client_chat: TChatCls | None = None,
+        config: GenericConfig | ProviderConfig | None = None,
     ):
         self.id = id
         self.client = client_chat
@@ -90,7 +89,7 @@ class GenericChat(t.Generic[TChatCls]):
         cls,
         provider: str,
         chat_id: str,
-        config: t.Optional[GenericConfig] = None,
+        config: GenericConfig | None = None,
     ) -> "GenericChat":
         """
         Factory method to create a GenericChat with the specified provider.
