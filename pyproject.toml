@@ -2,7 +2,7 @@
 name = "llmterface-dev"
 version = "0.0.0"
 description = "Development harness for LLMterface"
-requires-python = ">=3.11,<4.0"
+requires-python = ">=3.12,<4.0"
 dependencies = [
   "llmterface[all]",
   "python-dotenv>=1.2.1,<2.0.0",
