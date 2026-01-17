@@ -57,5 +57,5 @@ class GeminiConfig(llm.ProviderConfig):
             raise NotImplementedError(f"No mapping for generic model type: {v}")
         try:
             return AllowedGeminiModels(v)
-        except ValueError:
-            raise ValueError(f"Invalid Gemini model type: {v}")
+        except ValueError as e:
+            raise ValueError(f"Invalid Gemini model type: {v}") from e

@@ -122,8 +122,8 @@ class GenericConfig(BaseModel, t.Generic[TRes]):
             return v
         try:
             return GenericModelType(v)
-        except ValueError:
-            raise ValueError(f"Invalid model enum value: {v}")
+        except ValueError as e:
+            raise ValueError(f"Invalid model enum value: {v}") from e
 
     def get_response_schema(self) -> dict[str, t.Any]:
         """
