@@ -19,9 +19,7 @@ class FakeProviderConfig(llm.ProviderConfig):
 class FakeChat(ProviderChat):
     PROVIDER: t.ClassVar[str] = FakeProviderConfig.PROVIDER
 
-    def ask(
-        self, question: llm.Question, provider_config: llm.ProviderConfig
-    ) -> llm.GenericResponse:
+    def ask(self, question: llm.Question, provider_config: llm.ProviderConfig) -> llm.GenericResponse:
         text = dict()
         res = None
         if "What is the airspeed velocity of an unladen swallow?" in question.prompt:

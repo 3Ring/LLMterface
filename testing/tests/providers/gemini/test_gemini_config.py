@@ -20,9 +20,7 @@ st_generic_models = st.sampled_from(list(llm.GenericModelType))
 st_valid_model_strings = st.sampled_from(allowed_model_values)
 
 # Make strings that are NOT any allowed enum value
-st_invalid_model_strings = st.text(min_size=1).filter(
-    lambda s: s not in set(allowed_model_values)
-)
+st_invalid_model_strings = st.text(min_size=1).filter(lambda s: s not in set(allowed_model_values))
 
 
 # -------------------------
@@ -40,24 +38,16 @@ def test_validate_model_allowed_model_passthrough(model):
 
 
 def test_validate_model_generic_model_maps_correctly_for_known_mappings():
-
     val_lite = GeminiConfig.validate_model(llm.GenericModelType.text_lite)
-    assert (
-        val_lite == GeminiConfig.GENERIC_MODEL_MAPPING[llm.GenericModelType.text_lite]
-    )
+    assert val_lite == GeminiConfig.GENERIC_MODEL_MAPPING[llm.GenericModelType.text_lite]
     assert val_lite in allowed_models
 
     val_standard = GeminiConfig.validate_model(llm.GenericModelType.text_standard)
-    assert (
-        val_standard
-        == GeminiConfig.GENERIC_MODEL_MAPPING[llm.GenericModelType.text_standard]
-    )
+    assert val_standard == GeminiConfig.GENERIC_MODEL_MAPPING[llm.GenericModelType.text_standard]
     assert val_standard in allowed_models
 
     val_heavy = GeminiConfig.validate_model(llm.GenericModelType.text_heavy)
-    assert (
-        val_heavy == GeminiConfig.GENERIC_MODEL_MAPPING[llm.GenericModelType.text_heavy]
-    )
+    assert val_heavy == GeminiConfig.GENERIC_MODEL_MAPPING[llm.GenericModelType.text_heavy]
     assert val_heavy in allowed_models
 
 
@@ -68,12 +58,9 @@ def test_validate_model_generic_model_missing_mapping_raises(monkeypatch):
         llm.GenericModelType.text_standard,
         llm.GenericModelType.text_heavy,
     ):
-
         monkeypatch.delitem(GeminiConfig.GENERIC_MODEL_MAPPING, enum, raising=True)
 
-        with pytest.raises(
-            NotImplementedError, match=r"No mapping for generic model type:"
-        ):
+        with pytest.raises(NotImplementedError, match=r"No mapping for generic model type:"):
             GeminiConfig.validate_model(enum)
 
 
@@ -134,10 +121,7 @@ def test_gemini_config_model_validation_runs_on_init_for_generic_model():
         api_key="abc123",
         model=llm.GenericModelType.text_lite,  # should validate/convert
     )
-    assert (
-        gem_cfg.model
-        == GeminiConfig.GENERIC_MODEL_MAPPING[llm.GenericModelType.text_lite]
-    )
+    assert gem_cfg.model == GeminiConfig.GENERIC_MODEL_MAPPING[llm.GenericModelType.text_lite]
 
 
 def test_gemini_config_model_validation_runs_on_init_for_string():

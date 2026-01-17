@@ -17,9 +17,7 @@ def test_readme_basic():
             provider="gemini",
         )
     )
-    res = handler.ask(
-        "how many LLMs does it take to screw in a lightbulb? Explain your reasoning."
-    )
+    res = handler.ask("how many LLMs does it take to screw in a lightbulb? Explain your reasoning.")
     assert res, "Response should not be empty."
     assert isinstance(res, str), "Response should be a string."
 
@@ -42,7 +40,8 @@ def test_readme_config_precedence():
 
     Q = "What is the airspeed velocity of an unladen swallow?"
     question = llm.Question(
-        question=Q, config=gemini_config()  # response_model defaults to str
+        question=Q,
+        config=gemini_config(),  # response_model defaults to str
     )
     int_res = handler.ask(Q)
     assert isinstance(int_res, int), "Expected int response from handler config"

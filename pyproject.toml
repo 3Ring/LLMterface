@@ -24,7 +24,7 @@ llmterface-gemini = { workspace = true }
 
 [tool.ruff]
 target-version = "py312"
-line-length = 88
+line-length = 120
 
 [tool.ruff.lint]
 select = [

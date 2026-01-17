@@ -26,8 +26,7 @@ class GenericConfig(BaseModel, t.Generic[TRes]):
     provider: str | None = Field(
         default=None,
         description=(
-            "The LLM provider to use. "
-            "If not specified, the provider must be set via provider-specific overrides."
+            "The LLM provider to use. If not specified, the provider must be set via provider-specific overrides."
         ),
     )
     api_key: str | None = Field(
@@ -101,7 +100,6 @@ class GenericConfig(BaseModel, t.Generic[TRes]):
         validated: dict[str, ProviderConfig] = dict()
 
         for key, value in v.items():
-
             cfg_cls = get_provider_config(key)
             if isinstance(value, ProviderConfig):
                 if not isinstance(value, cfg_cls):
@@ -133,17 +131,13 @@ class GenericConfig(BaseModel, t.Generic[TRes]):
         Get the JSON schema for the expected response model.
         """
         if not isinstance(self.response_model, type):
-            raise TypeError(
-                f"response_model must be a type, got: {type(self.response_model)}"
-            )
+            raise TypeError(f"response_model must be a type, got: {type(self.response_model)}")
         if issubclass(self.response_model, BaseModel):
             return self.response_model.model_json_schema()
         elif self.response_model in SIMPLE_MAP:
             return SIMPLE_MAP[self.response_model].model_json_schema()
         else:
-            raise NotImplementedError(
-                f"Response schema generation not implemented for type: {self.response_model}"
-            )
+            raise NotImplementedError(f"Response schema generation not implemented for type: {self.response_model}")
 
     def validate_response(
         self,
@@ -155,9 +149,7 @@ class GenericConfig(BaseModel, t.Generic[TRes]):
         if issubclass(self.response_model, BaseModel):
             return self.response_model.model_validate(response_data)
         if self.response_model not in SIMPLE_MAP:
-            raise NotImplementedError(
-                f"Response validation not implemented for type: {self.response_model}"
-            )
+            raise NotImplementedError(f"Response validation not implemented for type: {self.response_model}")
         return SIMPLE_MAP[self.response_model].model_validate(response_data).response
 
     def __str__(self) -> str:

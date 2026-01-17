@@ -21,9 +21,7 @@ def load_provider_configs() -> None:
     for ep in eps:
         obj = ep.load()
         if not isinstance(obj, ProviderSpec):
-            raise ValueError(
-                f"Entry point {ep.name} did not return a ProviderSpec instance"
-            )
+            raise ValueError(f"Entry point {ep.name} did not return a ProviderSpec instance")
         _PROVIDER_SPECS[obj.provider] = obj
 
 
@@ -40,9 +38,7 @@ def get_provider_config(provider: str) -> type[ProviderConfig]:
     if provider not in _PROVIDER_SPECS:
         if not isinstance(provider, str):
             raise TypeError(f"provider must be a str, got {type(provider)}") from e
-        raise NotImplementedError(
-            f"No provider spec found for provider: '{provider}'. Did you install it correctly?"
-        )
+        raise NotImplementedError(f"No provider spec found for provider: '{provider}'. Did you install it correctly?")
     return _PROVIDER_SPECS[provider].config_cls
 
 
@@ -51,7 +47,5 @@ def get_provider_chat(provider: str) -> type[ProviderChat]:
     if provider not in _PROVIDER_SPECS:
         if not isinstance(provider, str):
             raise TypeError(f"provider must be a str, got {type(provider)}") from e
-        raise NotImplementedError(
-            f"No provider spec found for provider: '{provider}'. Did you install it correctly?"
-        )
+        raise NotImplementedError(f"No provider spec found for provider: '{provider}'. Did you install it correctly?")
     return _PROVIDER_SPECS[provider].chat_cls

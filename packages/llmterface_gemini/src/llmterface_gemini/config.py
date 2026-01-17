@@ -10,21 +10,15 @@ AllowedGeminiModels = GeminiTextModelType
 
 
 class GeminiConfig(llm.ProviderConfig):
-    GENERIC_MODEL_MAPPING: t.ClassVar[
-        dict[llm.GenericModelType, AllowedGeminiModels]
-    ] = {
+    GENERIC_MODEL_MAPPING: t.ClassVar[dict[llm.GenericModelType, AllowedGeminiModels]] = {
         llm.GenericModelType.text_lite: GeminiTextModelType.CHAT_2_0_FLASH_LITE,
         llm.GenericModelType.text_standard: GeminiTextModelType.CHAT_2_0_FLASH,
         llm.GenericModelType.text_heavy: GeminiTextModelType.CHAT_2_5_PRO,
     }
     DEFAULT_MODEL: t.ClassVar[AllowedGeminiModels] = GeminiTextModelType.CHAT_2_0_FLASH
     PROVIDER: t.ClassVar[str] = "gemini"
-    api_key: str = Field(
-        ..., description="API key for authenticating with the Gemini service."
-    )
-    model: GeminiTextModelType = Field(
-        default=DEFAULT_MODEL, description="Gemini model to use for requests."
-    )
+    api_key: str = Field(..., description="API key for authenticating with the Gemini service.")
+    model: GeminiTextModelType = Field(default=DEFAULT_MODEL, description="Gemini model to use for requests.")
     gen_content_config: GenerateContentConfig | None = Field(
         None,
         description="pre-configured GenerateContentConfig to use for requests.",

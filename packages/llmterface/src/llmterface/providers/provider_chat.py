@@ -14,9 +14,7 @@ class ProviderChat(BaseModel, ABC):
 
     PROVIDER: t.ClassVar[str] = NotImplemented
     id: str = Field(..., description="Unique identifier for the chat instance.")
-    config: t.Optional[GenericConfig] = Field(
-        default=None, description="Configuration for the chat instance."
-    )
+    config: t.Optional[GenericConfig] = Field(default=None, description="Configuration for the chat instance.")
 
     @abstractmethod
     def ask(self, question: Question, provider_config: ProviderConfig) -> GenericResponse:

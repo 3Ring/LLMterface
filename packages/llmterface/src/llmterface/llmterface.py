@@ -17,7 +17,6 @@ TAns = t.TypeVar("TAns", bound=BaseModel)
 
 
 class LLMterface:
-
     def __init__(
         self,
         config: t.Optional[GenericConfig] = None,
@@ -38,9 +37,7 @@ class LLMterface:
             or (self.base_config.provider if self.base_config else None)
         )
         if not provider:
-            raise ValueError(
-                "Provider must be specified either in config or as an argument for temporary chat."
-            )
+            raise ValueError("Provider must be specified either in config or as an argument for temporary chat.")
         chat_id = f"temp-{uuid.uuid4().hex}"
         chat = GenericChat.create(
             provider=provider,
@@ -83,7 +80,6 @@ class LLMterface:
         question: Question[TAns] | str,
         chat_id: t.Optional[str] = None,
     ) -> TAns | str:
-
         if isinstance(question, str):
             question: Question[str] = Question(
                 question=question,
@@ -98,15 +94,12 @@ class LLMterface:
         with self.temp_chat(config=None, provider=question.config.provider) as temp:
             return temp.ask(question)
 
-
     def create_chat(
         self,
         provider: str,
         config: t.Optional[GenericConfig] = None,
         chat_id: t.Optional[str] = None,
     ) -> str:
-        chat = GenericChat.create(
-            provider, chat_id=chat_id or uuid.uuid4().hex, config=config
-        )
+        chat = GenericChat.create(provider, chat_id=chat_id or uuid.uuid4().hex, config=config)
         self.chats[chat.id] = chat
         return chat.id

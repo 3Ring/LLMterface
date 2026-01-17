@@ -15,9 +15,7 @@ def test_instantiate_chat():
         chat_id="test_chat_id",
         config=config,
     )
-    assert isinstance(
-        chat, llm.GenericChat
-    ), "Chat should be an instance of GenericChat"
+    assert isinstance(chat, llm.GenericChat), "Chat should be an instance of GenericChat"
 
 
 def test_ask_question():
@@ -32,9 +30,7 @@ def test_ask_question():
         chat_id="test_chat_id",
         config=config,
     )
-    question = llm.Question[str](
-        question="What is the capital of France?", config=config
-    )
+    question = llm.Question[str](question="What is the capital of France?", config=config)
     response = chat.ask(question)
     assert isinstance(response, str), "Response should be a string"
 
@@ -49,9 +45,5 @@ def test_response_model_types(response_model):
     )
     handler = llm.LLMterface(config=config)
     chat_id = handler.create_chat(provider=FakeProviderConfig.PROVIDER, config=config)
-    res = handler.chats[chat_id].ask(
-        llm.Question(question="return a value of the correct type")
-    )
-    assert isinstance(
-        res, response_model
-    ), f"Response should be of type {response_model}"
+    res = handler.chats[chat_id].ask(llm.Question(question="return a value of the correct type"))
+    assert isinstance(res, response_model), f"Response should be of type {response_model}"

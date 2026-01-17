@@ -23,14 +23,11 @@ def convert_response_to_generic(
 
 
 class GeminiChat(ProviderChat):
-
     PROVIDER: t.ClassVar[str] = GeminiConfig.PROVIDER
     _client: t.Optional[GenaiClient] = PrivateAttr(default=None)
     _sdk_chat: t.Optional[GenaiChat] = PrivateAttr(default=None)
 
-    def ask(
-        self, question: Question, provider_config: t.Optional[GeminiConfig] = None
-    ) -> GenericResponse:
+    def ask(self, question: Question, provider_config: t.Optional[GeminiConfig] = None) -> GenericResponse:
         provider_config = provider_config or self.config
         if provider_config is None:
             raise ValueError("GeminiConfig must be provided to ask a question.")
@@ -38,7 +35,5 @@ class GeminiChat(ProviderChat):
             if self._client is None:
                 self._client = GenaiClient(api_key=provider_config.api_key)
             self._sdk_chat = self._client.chats.create(model=provider_config.model.value)
-        res = self._sdk_chat.send_message(
-            question.prompt, config=provider_config.gen_content_config
-        )
+        res = self._sdk_chat.send_message(question.prompt, config=provider_config.gen_content_config)
         return convert_response_to_generic(res)

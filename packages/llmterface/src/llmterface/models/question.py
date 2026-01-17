@@ -14,13 +14,10 @@ class Question(BaseModel, t.Generic[TRes]):
     model_config = ConfigDict(extra="forbid")
     config: t.Optional[GenericConfig[TRes]] = Field(
         default=None,
-        description="Optional configuration for this question."
-        "This will override chat and module level configurations.",
+        description="Optional configuration for this question.This will override chat and module level configurations.",
     )
     question: str = Field(default="", description="The question to ask the AI.")
-    max_retries: int = Field(
-        default=1, description="Maximum number of retries for this question."
-    )
+    max_retries: int = Field(default=1, description="Maximum number of retries for this question.")
 
     def get_question(self) -> str:
         """
@@ -73,9 +70,7 @@ class Question(BaseModel, t.Generic[TRes]):
     def prompt(self) -> str:
         return self.get_question()
 
-    def with_prioritized_config(
-        self, ordered_configs: t.Sequence[t.Optional[GenericConfig[TRes]]]
-    ):
+    def with_prioritized_config(self, ordered_configs: t.Sequence[t.Optional[GenericConfig[TRes]]]):
         if self.config is not None:
             return self
         for cfg in ordered_configs:
