@@ -6,15 +6,17 @@ from llmterface.providers.provider_spec import ProviderSpec
 load_provider_configs()
 from llmterface.providers.discovery import _PROVIDER_SPECS
 
-pop_config = lambda: llm.GenericConfig(
-    api_key="test_api_key",
-    model=llm.GenericModelType.text_standard,
-    temperature=0.7,
-    max_output_tokens=512,
-    max_input_tokens=1024,
-    system_instruction="You are a helpful assistant.",
-    response_model=str,
-)
+
+def pop_config() -> llm.GenericConfig:
+    return llm.GenericConfig(
+        api_key="test_api_key",
+        model=llm.GenericModelType.text_standard,
+        temperature=0.7,
+        max_output_tokens=512,
+        max_input_tokens=1024,
+        system_instruction="You are a helpful assistant.",
+        response_model=str,
+    )
 
 
 @pytest.mark.parametrize(
