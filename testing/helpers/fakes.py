@@ -51,7 +51,6 @@ class FakeChat(ProviderChat):
             text["response"] = res or 42
         else:
             raise NotImplementedError("Unsupported response format in FakeChat.")
-        print(f"FakeChat returning text: {text}")
         return llm.GenericResponse(original={}, text=json.dumps(text))
 
 
