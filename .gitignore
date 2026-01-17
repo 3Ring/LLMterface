@@ -164,3 +164,5 @@ pytransform/
 
 #config file
 mainConfig.py
+
+.ruff_cache/
