@@ -24,9 +24,10 @@ def test_readme_basic():
 
 def test_readme_config_precedence():
     mock_all_prov()
+    from functools import partial
+
     import llmterface as llm
     import llmterface_gemini as gemini
-    from functools import partial
 
     gemini_config = partial(
         llm.GenericConfig,
@@ -75,8 +76,8 @@ def test_readme_vendor_override():
 
 def test_readme_strucutured_response():
     mock_all_prov()
-    from pydantic import BaseModel, Field
     import llmterface as llm
+    from pydantic import BaseModel, Field
 
     class WeatherResponse(BaseModel):
         temperature_c: float = Field(..., description="Temperature in Celsius")

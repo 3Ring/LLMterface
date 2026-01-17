@@ -1,9 +1,9 @@
-import pytest
 import json
 
 import llmterface as llm
 import llmterface.exceptions as ex
 import llmterface_gemini as gemini
+import pytest
 
 PROVIDER = gemini.GeminiConfig.PROVIDER
 

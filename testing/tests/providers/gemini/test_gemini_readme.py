@@ -1,9 +1,9 @@
+import os
+
+import dotenv
 import llmterface as llm
 import pytest
 from llmterface.providers.discovery import load_provider_configs
-
-import dotenv
-import os
 
 dotenv.load_dotenv()
 API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -12,7 +12,6 @@ API_KEY = os.getenv("GOOGLE_API_KEY")
 @pytest.mark.integration()
 def test_readme_basic():
     load_provider_configs()
-    import llmterface as llm
 
     handler = llm.LLMterface(
         config=llm.GenericConfig(
@@ -28,9 +27,9 @@ def test_readme_basic():
 @pytest.mark.integration()
 def test_readme_config_precedence():
     load_provider_configs()
-    import llmterface as llm
-    import llmterface_gemini as gemini
     from functools import partial
+
+    import llmterface_gemini as gemini
 
     gemini_config = partial(
         llm.GenericConfig,
@@ -58,7 +57,6 @@ def test_readme_config_precedence():
 @pytest.mark.integration()
 def test_readme_vendor_override():
     load_provider_configs()
-    import llmterface as llm
     import llmterface_gemini as gemini
 
     gemini_override = gemini.GeminiConfig.from_generic_config(
@@ -84,7 +82,6 @@ def test_readme_vendor_override():
 def test_readme_strucutured_response():
     load_provider_configs()
     from pydantic import BaseModel, Field
-    import llmterface as llm
 
     class WeatherResponse(BaseModel):
         temperature_c: float = Field(..., description="Temperature in Celsius")

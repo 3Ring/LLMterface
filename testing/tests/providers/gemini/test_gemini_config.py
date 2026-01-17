@@ -1,12 +1,11 @@
-import pytest
-from hypothesis import given, strategies as st
-from pydantic import BaseModel
-from google.genai.types import GenerateContentConfig
-
 import llmterface as llm
-from llmterface_gemini.models import GeminiTextModelType
+import pytest
+from google.genai.types import GenerateContentConfig
+from hypothesis import given
+from hypothesis import strategies as st
 from llmterface_gemini.config import GeminiConfig
-
+from llmterface_gemini.models import GeminiTextModelType
+from pydantic import BaseModel
 
 # -------------------------
 # Helpers / strategies
