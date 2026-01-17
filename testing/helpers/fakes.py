@@ -8,26 +8,19 @@ from llmterface.providers.provider_chat import ProviderChat
 from llmterface.providers.provider_spec import ProviderSpec
 
 
-class FakeConfig(llm.ProviderConfig):
+class FakeProviderConfig(llm.ProviderConfig):
     PROVIDER: t.ClassVar[str] = "mock"
 
     @classmethod
-    def from_generic_config(cls, config: llm.GenericConfig | None) -> "FakeConfig":
+    def from_generic_config(cls, config: llm.GenericConfig | None) -> "FakeProviderConfig":
         return cls()
 
 
 class FakeChat(ProviderChat):
-    PROVIDER: t.ClassVar[str] = FakeConfig.PROVIDER
-
-    @classmethod
-    def from_provider_config(
-        cls,
-        config: llm.ProviderConfig,
-    ) -> "FakeChat":
-        return cls()
+    PROVIDER: t.ClassVar[str] = FakeProviderConfig.PROVIDER
 
     def ask(
-        self, question: llm.Question, client_config: llm.ProviderConfig
+        self, question: llm.Question, provider_config: llm.ProviderConfig
     ) -> llm.GenericResponse:
         text = dict()
         res = None
@@ -35,9 +28,11 @@ class FakeChat(ProviderChat):
             if issubclass(question.config.response_model, str):
                 res = "An African or European swallow?"
             elif issubclass(question.config.response_model, float):
-                res = "42.0"
+                res = 42.0
+            elif issubclass(question.config.response_model, bool):
+                res = True
             elif issubclass(question.config.response_model, int):
-                res = "42"
+                res = 42
             else:
                 raise NotImplementedError("Unsupported response format in FakeChat.")
         if "What is the current weather in Paris?" in question.prompt:
@@ -48,9 +43,14 @@ class FakeChat(ProviderChat):
         elif issubclass(question.config.response_model, str):
             text["response"] = res or "mock response"
         elif issubclass(question.config.response_model, float):
-            text["response"] = res or "3.14"
+            text["response"] = res or 3.14
+        elif issubclass(question.config.response_model, bool):
+            if res is not None:
+                text["response"] = res
+            else:
+                text["response"] = True
         elif issubclass(question.config.response_model, int):
-            text["response"] = res or "42"
+            text["response"] = res or 42
         else:
             raise NotImplementedError("Unsupported response format in FakeChat.")
         print(f"FakeChat returning text: {text}")
@@ -64,17 +64,17 @@ def mock_all_prov() -> None:
     )
 
     load_provider_configs_once()
-    for key in ["openai", "gemini", "anthropic"]:
+    for key in ["openai", "gemini", "anthropic", "mock"]:
         if key in _PROVIDER_SPECS:
             continue
         _PROVIDER_SPECS[key] = ProviderSpec(
             provider=key,
-            config_cls=FakeConfig,
+            config_cls=FakeProviderConfig,
             chat_cls=FakeChat,
         )
     for k in _PROVIDER_SPECS:
         _PROVIDER_SPECS[k] = ProviderSpec(
             provider=k,
-            config_cls=FakeConfig,
+            config_cls=FakeProviderConfig,
             chat_cls=FakeChat,
         )

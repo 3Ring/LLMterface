@@ -1,6 +1,6 @@
 import typing as t
 
-from pydantic import BaseModel, Field, field_validator, SerializeAsAny
+from pydantic import BaseModel, Field, field_validator, SerializeAsAny, ConfigDict
 
 from llmterface.models.generic_model_types import GenericModelType
 from llmterface.providers.provider_config import ProviderConfig
@@ -22,6 +22,7 @@ class GenericConfig(BaseModel, t.Generic[TRes]):
     rather than by branching on provider logic in application code.
     """
 
+    model_config = ConfigDict(extra="forbid")
     provider: str | None = Field(
         default=None,
         description=(
@@ -153,14 +154,11 @@ class GenericConfig(BaseModel, t.Generic[TRes]):
         """
         if issubclass(self.response_model, BaseModel):
             return self.response_model.model_validate(response_data)
-        elif self.response_model in SIMPLE_MAP:
-            return (
-                SIMPLE_MAP[self.response_model].model_validate(response_data).response
-            )
-        else:
+        if self.response_model not in SIMPLE_MAP:
             raise NotImplementedError(
                 f"Response validation not implemented for type: {self.response_model}"
             )
+        return SIMPLE_MAP[self.response_model].model_validate(response_data).response
 
     def __str__(self) -> str:
         return (

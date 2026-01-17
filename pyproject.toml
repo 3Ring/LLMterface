@@ -7,9 +7,9 @@ dependencies = [
   "llmterface[all]",
   "python-dotenv>=1.2.1,<2.0.0",
   "pytest>=7.4.3,<8.0.0",
-  "black>=24.2.1,<25.0.0",
   "hypothesis>=6.148.9",
   "ipython>=9.8.0",
+  "ruff>=0.14.13",
 ]
 
 [tool.uv]
@@ -22,6 +22,26 @@ members = ["packages/llmterface", "packages/llmterface_gemini"]
 llmterface = { workspace = true }
 llmterface-gemini = { workspace = true }
 
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line length (formatter handles this)
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
 [tool.pytest.ini_options]
 markers = [
     "integration: marks tests as integration tests",
@@ -31,3 +51,4 @@ testpaths = ["testing/tests"]
 pythonpath = ["packages"]
 log_cli = true
 log_cli_level = "INFO"
+

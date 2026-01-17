@@ -30,14 +30,20 @@ class LLMterface:
 
     @contextmanager
     def temp_chat(
-        self, config: GenericConfig | None
+        self, config: t.Optional[GenericConfig] = None, provider: t.Optional[str] = None
     ) -> t.Generator[GenericChat, None, None]:
-        if not config and not self.base_config:
-            raise RuntimeError("Either a config or base_config must be provided.")
+        provider = (
+            provider
+            or (config.provider if config else None)
+            or (self.base_config.provider if self.base_config else None)
+        )
+        if not provider:
+            raise ValueError(
+                "Provider must be specified either in config or as an argument for temporary chat."
+            )
         chat_id = f"temp-{uuid.uuid4().hex}"
-        config = config or self.base_config
         chat = GenericChat.create(
-            provider=config.provider,
+            provider=provider,
             chat_id=chat_id,
             config=config,
         )
@@ -86,45 +92,12 @@ class LLMterface:
             chat = self.chats.get(chat_id)
             if not chat:
                 raise KeyError(f"Chat with id '{chat_id}' not found.")
-            return self._ask(question, chat)
-        with self.temp_chat(question.config) as temp:
-            return self._ask(question, temp)
+            question = question.with_prioritized_config([chat.config, self.base_config])
+            return chat.ask(question)
+        question = question.with_prioritized_config([self.base_config])
+        with self.temp_chat(config=None, provider=question.config.provider) as temp:
+            return temp.ask(question)
 
-    def _ask(self, question: Question[TAns], chat: GenericChat) -> TAns:
-        retries = 0
-        res = None
-        if not question.config:
-            config = chat.config or self.base_config
-            if not config:
-                raise RuntimeError(
-                    "No config found for question or chat, and no base_config set."
-                )
-            question = question.model_copy(update={"config": config})
-        while True:
-            try:
-                res = chat.ask(question)
-                json_res = json.loads(res.text)
-                return question.config.validate_response(json_res)
-            except ex.AiHandlerError:
-                raise
-            except Exception as e:
-                if isinstance(e, (json.JSONDecodeError, ValueError)):
-                    exc = ex.SchemaError(
-                        f"Error parsing response: [{type(e)}]{e}", original_exception=e
-                    )
-                else:
-                    exc = ex.ProviderError(
-                        f"Error from provider: [{type(e)}]{e}", original_exception=e
-                    )
-                exc.__cause__ = e
-                retry_question = question.on_retry(
-                    question, response=res, e=exc, retries=retries
-                )
-                if not retry_question:
-                    raise exc from e
-                question = retry_question
-                retries += 1
-                continue
 
     def create_chat(
         self,

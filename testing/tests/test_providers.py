@@ -68,13 +68,11 @@ def test_provider_chat_instantiation(provider_spec: ProviderSpec):
     generic_config = pop_config()
     chat_id = "test_chat"
     ChatCls = provider_spec.chat_cls
-    ConfigCls = provider_spec.config_cls
     provider_chat_no_config = ChatCls(id=chat_id)
     assert isinstance(
         provider_chat_no_config, llm.ProviderChat
     ), "ProviderChat instantiation without config did not return a ProviderChat instance"
-    provider_config = ConfigCls.from_generic_config(generic_config)
-    provider_chat_with_config = ChatCls(id=chat_id, config=provider_config)
+    provider_chat_with_config = ChatCls(id=chat_id, config=generic_config)
     assert isinstance(
         provider_chat_with_config, llm.ProviderChat
     ), "ProviderChat instantiation with config did not return a ProviderChat instance"

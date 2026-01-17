@@ -1,6 +1,8 @@
 import typing as t
+import json
 
 import llmterface.exceptions as ex
+from pydantic import BaseModel
 from llmterface.models.question import Question
 from llmterface.models.generic_config import GenericConfig
 from llmterface.models.generic_response import GenericResponse
@@ -9,6 +11,8 @@ from llmterface.providers.provider_config import ProviderConfig
 from llmterface.providers.discovery import get_provider_config, get_provider_chat
 
 TChatCls = t.TypeVar("TChatCls", bound=ProviderChat)
+
+TAns = t.TypeVar("TAns", bound=BaseModel)
 
 
 class GenericChat(t.Generic[TChatCls]):
@@ -21,10 +25,14 @@ class GenericChat(t.Generic[TChatCls]):
     ):
         self.id = id
         self.client = client_chat
+        if isinstance(config, ProviderConfig):
+            config = GenericConfig(
+                provider=config.PROVIDER, provider_overrides={config.PROVIDER: config}
+            )
         self.config = config
 
     @staticmethod
-    def get_provider_client_config(
+    def get_provider_config(
         config: GenericConfig,
     ) -> ProviderConfig:
         if not config.provider:
@@ -40,27 +48,49 @@ class GenericChat(t.Generic[TChatCls]):
 
         return provider_config_cls.from_generic_config(config)
 
-    def ask(self, question: Question) -> GenericResponse:
+    def ask(self, question: Question[TAns]) -> TAns:
         """
         Ask a question using the chat's AI client and store the response.
         """
-        provider_config = question.config or self.client.config or self.config
-        if isinstance(provider_config, GenericConfig) and (
-            override := provider_config.provider_overrides.get(provider_config.provider)
-        ):
-            provider_config = override
         try:
-            if not provider_config:
-                raise RuntimeError(
-                    "No configuration available for asking the question."
-                )
-            if not isinstance(provider_config, ProviderConfig):
-                provider_config = self.get_provider_client_config(provider_config)
-            return self.client.ask(question, provider_config)
+            question = question.with_prioritized_config([self.config])
+            provider_config = question.config.provider_overrides.get(
+                self.client.PROVIDER
+            ) or self.get_provider_config(question.config)
+            return self._ask(question, provider_config)
         except Exception as e:
             raise ex.ClientError(
                 f"Error while asking question to AI client: [{type(e)}]{e}"
             ) from e
+
+    def _ask(self, question: Question[TAns], provider_config: ProviderConfig) -> TAns:
+        retries = 0
+        res = None
+        while True:
+            try:
+                res = self.client.ask(question, provider_config)
+                json_res = json.loads(res.text)
+                return question.config.validate_response(json_res)
+            except ex.AiHandlerError:
+                raise
+            except Exception as e:
+                if isinstance(e, (json.JSONDecodeError, ValueError)):
+                    exc = ex.SchemaError(
+                        f"Error parsing response: [{type(e)}]{e}", original_exception=e
+                    )
+                else:
+                    exc = ex.ProviderError(
+                        f"Error from provider: [{type(e)}]{e}", original_exception=e
+                    )
+                exc.__cause__ = e
+                retry_question = question.on_retry(
+                    question, response=res, e=exc, retries=retries
+                )
+                if not retry_question:
+                    raise exc from e
+                question = retry_question
+                retries += 1
+                continue
 
     def close(self) -> None:
         """
@@ -83,5 +113,5 @@ class GenericChat(t.Generic[TChatCls]):
             raise NotImplementedError(
                 f"No provider chat class found for provider: {provider}"
             )
-        client_chat = ProviderChatCls(chat_id, config)
+        client_chat = ProviderChatCls(id=chat_id, config=config)
         return cls(client_chat.id, client_chat=client_chat, config=config)

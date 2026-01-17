@@ -41,9 +41,6 @@ class Question(BaseModel, t.Generic[TRes]):
         This method should return a new Question instance to retry with
         or None to stop retrying.
         """
-        print(response)
-        print(response.original)
-        print(response.original.text)
         if retries >= q.max_retries:
             return None
         fail_msg = "Please ensure your response strictly follows the required format."
@@ -75,3 +72,13 @@ class Question(BaseModel, t.Generic[TRes]):
     @property
     def prompt(self) -> str:
         return self.get_question()
+
+    def with_prioritized_config(
+        self, ordered_configs: t.Sequence[t.Optional[GenericConfig[TRes]]]
+    ):
+        if self.config is not None:
+            return self
+        for cfg in ordered_configs:
+            if cfg is not None:
+                return self.model_copy(update={"config": cfg})
+        raise RuntimeError("No configuration available to prioritize.")
