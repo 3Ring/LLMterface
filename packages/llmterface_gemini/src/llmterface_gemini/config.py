@@ -44,9 +44,7 @@ class GeminiConfig(llm.ProviderConfig):
 
     @field_validator("model", mode="before")
     @classmethod
-    def validate_model(
-        cls, v: AllowedGeminiModels | llm.GenericModelType | str | None
-    ) -> GeminiTextModelType | None:
+    def validate_model(cls, v: AllowedGeminiModels | llm.GenericModelType | str | None) -> GeminiTextModelType | None:
         if v is None:
             return None
         if isinstance(v, AllowedGeminiModels):
