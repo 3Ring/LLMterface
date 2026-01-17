@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 TRes = t.TypeVar("TRes", bound=BaseModel | str | int | float | bool)
 
 
-class Question(BaseModel, t.Generic[TRes]):
+class Question[TRes](BaseModel):
     model_config = ConfigDict(extra="forbid")
     config: GenericConfig[TRes] | None = Field(
         default=None,

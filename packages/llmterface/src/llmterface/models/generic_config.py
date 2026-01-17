@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, SerializeAsAny, field_validat
 TRes = t.TypeVar("TRes", bound=BaseModel | str | int | float | bool)
 
 
-class GenericConfig(BaseModel, t.Generic[TRes]):
+class GenericConfig[TRes](BaseModel):
     """
     Generic configuration shared across all LLM providers.
 
@@ -79,7 +79,7 @@ class GenericConfig(BaseModel, t.Generic[TRes]):
         description="Maximum number of tokens the model is allowed to generate.",
     )
     response_model: type[TRes] = Field(
-        default=str,
+        default=t.cast(type[TRes], str),
         description=(
             "The expected response model type. "
             "This can be a Pydantic model or a simple type like str, int, or float. "

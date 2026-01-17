@@ -14,7 +14,7 @@ TChatCls = t.TypeVar("TChatCls", bound=ProviderChat)
 TAns = t.TypeVar("TAns", bound=BaseModel)
 
 
-class GenericChat(t.Generic[TChatCls]):
+class GenericChat[TChatCls]:
     def __init__(
         self,
         id: str,
