@@ -37,7 +37,7 @@ def get_provider_config(provider: str) -> type[ProviderConfig]:
     load_provider_configs_once()
     if provider not in _PROVIDER_SPECS:
         if not isinstance(provider, str):
-            raise TypeError(f"provider must be a str, got {type(provider)}") from e
+            raise TypeError(f"provider must be a str, got {type(provider)}")
         raise NotImplementedError(f"No provider spec found for provider: '{provider}'. Did you install it correctly?")
     return _PROVIDER_SPECS[provider].config_cls
 
@@ -46,6 +46,6 @@ def get_provider_chat(provider: str) -> type[ProviderChat]:
     load_provider_configs_once()
     if provider not in _PROVIDER_SPECS:
         if not isinstance(provider, str):
-            raise TypeError(f"provider must be a str, got {type(provider)}") from e
+            raise TypeError(f"provider must be a str, got {type(provider)}")
         raise NotImplementedError(f"No provider spec found for provider: '{provider}'. Did you install it correctly?")
     return _PROVIDER_SPECS[provider].chat_cls
