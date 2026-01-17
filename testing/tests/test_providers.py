@@ -3,8 +3,8 @@ import pytest
 from llmterface.providers.discovery import get_provider_config, load_provider_configs
 from llmterface.providers.provider_spec import ProviderSpec
 
-load_provider_configs()
-from llmterface.providers.discovery import _PROVIDER_SPECS
+load_provider_configs() # noqa: F401
+from llmterface.providers.discovery import _PROVIDER_SPECS # noqa: E402, I001
 
 
 def pop_config() -> llm.GenericConfig:
