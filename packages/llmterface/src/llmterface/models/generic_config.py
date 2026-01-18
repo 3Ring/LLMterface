@@ -6,7 +6,7 @@ from llmterface.providers.discovery import get_provider_config
 from llmterface.providers.provider_config import ProviderConfig
 from pydantic import BaseModel, ConfigDict, Field, SerializeAsAny, field_validator
 
-AllowedResponseTypes: t.TypeAlias = BaseModel | str | int | float | bool # noqa: UP040
+AllowedResponseTypes: t.TypeAlias = BaseModel | str | int | float | bool  # noqa: UP040
 
 
 class GenericConfig[TRes: AllowedResponseTypes = str](BaseModel):
