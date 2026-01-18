@@ -288,7 +288,7 @@ wheels = [
 
 [[package]]
 name = "llmterface"
-version = "0.1.2"
+version = "0.2.1"
 source = { editable = "packages/llmterface" }
 dependencies = [
     { name = "pydantic" },
@@ -335,7 +335,7 @@ requires-dist = [
 
 [[package]]
 name = "llmterface-gemini"
-version = "0.1.1"
+version = "0.2.1"
 source = { editable = "packages/llmterface_gemini" }
 dependencies = [
     { name = "google-genai" },
