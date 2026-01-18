@@ -24,31 +24,38 @@ def test_readme_basic():
 
 def test_readme_config_precedence():
     mock_all_prov()
-    from functools import partial
 
     import llmterface as llm
     import llmterface_gemini as gemini
 
-    gemini_config = partial(
-        llm.GenericConfig,
+    handler_config = llm.GenericConfig(
         provider=gemini.GeminiConfig.PROVIDER,
         api_key="<YOUR GEMINI API KEY>",
+        response_model=int,
     )
-    handler_config = gemini_config(response_model=int)
-    chat_config = gemini_config(response_model=float)
+    chat_config = llm.GenericConfig(
+        provider=gemini.GeminiConfig.PROVIDER,
+        api_key="<YOUR GEMINI API KEY>",
+        response_model=float,
+    )
+    question_config = llm.GenericConfig(
+        provider=gemini.GeminiConfig.PROVIDER,
+        api_key="<YOUR GEMINI API KEY>",
+        response_model=str,
+    )
     handler = llm.LLMterface(config=handler_config)
-    chat_id = handler.create_chat(chat_config.provider, config=chat_config)
+    chat = handler.create_chat(chat_config.provider, config=chat_config)
 
     Q = "What is the airspeed velocity of an unladen swallow?"
     question = llm.Question(
         question=Q,
-        config=gemini_config(),  # response_model defaults to str
+        config=question_config,
     )
     int_res = handler.ask(Q)
     assert isinstance(int_res, int), "Expected int response from handler config"
-    float_res = handler.ask(Q, chat_id=chat_id)
+    float_res: float = handler.ask(Q, chat_id=chat.id)
     assert isinstance(float_res, float), "Expected float response from chat config"
-    str_res = handler.ask(question, chat_id=chat_id)
+    str_res = handler.ask(question, chat_id=chat.id)
     assert isinstance(str_res, str), "Expected str response from question config"
 
 

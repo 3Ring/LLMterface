@@ -44,6 +44,6 @@ def test_response_model_types(response_model):
         response_model=response_model,
     )
     handler = llm.LLMterface(config=config)
-    chat_id = handler.create_chat(provider=FakeProviderConfig.PROVIDER, config=config)
-    res = handler.chats[chat_id].ask(llm.Question(question="return a value of the correct type"))
+    chat = handler.create_chat(provider=FakeProviderConfig.PROVIDER, config=config)
+    res = chat.ask(llm.Question(question="return a value of the correct type"))
     assert isinstance(res, response_model), f"Response should be of type {response_model}"

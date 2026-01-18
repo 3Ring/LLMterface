@@ -1,15 +1,15 @@
+from __future__ import annotations
+
 import typing as t
 from textwrap import dedent
 
 import llmterface.exceptions as ex
-from llmterface.models.generic_config import GenericConfig
+from llmterface.models.generic_config import AllowedResponseTypes, GenericConfig
 from llmterface.models.generic_response import GenericResponse
 from pydantic import BaseModel, ConfigDict, Field
 
-TRes = t.TypeVar("TRes", bound=BaseModel | str | int | float | bool)
 
-
-class Question[TRes](BaseModel):
+class Question[TRes: AllowedResponseTypes](BaseModel):
     model_config = ConfigDict(extra="forbid")
     config: GenericConfig[TRes] | None = Field(
         default=None,
@@ -27,11 +27,11 @@ class Question[TRes](BaseModel):
 
     @staticmethod
     def on_retry(
-        q: "Question",
+        q: Question[TRes],
         response: GenericResponse | None = None,
         e: Exception | None = None,
         retries: int = 0,
-    ) -> t.Optional["Question"]:
+    ) -> Question[TRes] | None:
         """
         Override this method to provide custom retry logic.
         This method should return a new Question instance to retry with
@@ -58,7 +58,7 @@ class Question[TRes](BaseModel):
             return q.__class__.model_validate(data)
         return None
 
-    def get_config(self) -> GenericConfig | None:
+    def get_config(self) -> TRes:
         """
         Returns a dictionary of configuration options for the question.
         Subclasses can override this method to get fancy
@@ -69,7 +69,9 @@ class Question[TRes](BaseModel):
     def prompt(self) -> str:
         return self.get_question()
 
-    def with_prioritized_config(self, ordered_configs: t.Sequence[GenericConfig[TRes] | None]):
+    def with_prioritized_config(
+        self, ordered_configs: t.Sequence[GenericConfig[AllowedResponseTypes] | None]
+    ) -> Question[AllowedResponseTypes]:
         if self.config is not None:
             return self
         for cfg in ordered_configs:

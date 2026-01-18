@@ -6,10 +6,10 @@ from llmterface.providers.discovery import get_provider_config
 from llmterface.providers.provider_config import ProviderConfig
 from pydantic import BaseModel, ConfigDict, Field, SerializeAsAny, field_validator
 
-TRes = t.TypeVar("TRes", bound=BaseModel | str | int | float | bool)
+AllowedResponseTypes: t.TypeAlias = BaseModel | str | int | float | bool # noqa: UP040
 
 
-class GenericConfig[TRes](BaseModel):
+class GenericConfig[TRes: AllowedResponseTypes = str](BaseModel):
     """
     Generic configuration shared across all LLM providers.
 
@@ -79,7 +79,7 @@ class GenericConfig[TRes](BaseModel):
         description="Maximum number of tokens the model is allowed to generate.",
     )
     response_model: type[TRes] = Field(
-        default=t.cast(type[TRes], str),
+        str,
         description=(
             "The expected response model type. "
             "This can be a Pydantic model or a simple type like str, int, or float. "

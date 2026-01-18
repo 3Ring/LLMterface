@@ -37,9 +37,7 @@ def test_create_chat():
         response_model=str,
     )
     handler = llm.LLMterface(config=config)
-    chat_id = handler.create_chat(provider=FakeProviderConfig.PROVIDER, config=config)
-    assert isinstance(chat_id, str), "Chat ID should be a string"
-    chat = handler.chats[chat_id]
+    chat = handler.create_chat(provider=FakeProviderConfig.PROVIDER, config=config)
     assert isinstance(chat, llm.GenericChat), "Chat should be an instance of GenericChat"
     assert chat.id in handler.chats, "Chat ID should be in handler's chats"
 
@@ -52,9 +50,9 @@ def test_ask_with_chat_id():
         response_model=str,
     )
     handler = llm.LLMterface(config=config)
-    chat_id = handler.create_chat(provider=FakeProviderConfig.PROVIDER, config=config)
+    chat = handler.create_chat(provider=FakeProviderConfig.PROVIDER, config=config)
     question = llm.Question(question="What is the airspeed velocity of an unladen swallow?")
-    response = handler.ask(question, chat_id=chat_id)
+    response: str = handler.ask(question, chat_id=chat.id)
     assert isinstance(response, str), "Response should be a string"
     assert "African or European swallow" in response, "Response text should contain expected answer"
 

@@ -39,7 +39,7 @@ def test_readme_config_precedence():
     handler_config = gemini_config(response_model=int)
     chat_config = gemini_config(response_model=float)
     handler = llm.LLMterface(config=handler_config)
-    chat_id = handler.create_chat(chat_config.provider, config=chat_config)
+    chat = handler.create_chat(chat_config.provider, config=chat_config)
 
     Q = "What is the airspeed velocity of an unladen swallow?"
     question = llm.Question(
@@ -48,9 +48,9 @@ def test_readme_config_precedence():
     )
     int_res = handler.ask(Q)
     assert isinstance(int_res, int), "Expected int response from handler config"
-    float_res = handler.ask(Q, chat_id=chat_id)
+    float_res = handler.ask(Q, chat_id=chat.id)
     assert isinstance(float_res, float), "Expected float response from chat config"
-    str_res = handler.ask(question, chat_id=chat_id)
+    str_res = handler.ask(question, chat_id=chat.id)
     assert isinstance(str_res, str), "Expected str response from question config"
 
 

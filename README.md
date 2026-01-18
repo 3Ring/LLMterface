@@ -176,7 +176,7 @@ LLMterface is built around a small set of core objects.
 
 ---
 
-### `Question[TResponse]`
+### `Question[TRes: AllowedResponseTypes](BaseModel):`
 
 A `Question` represents a **single prompt submission** to an LLM, along with optional configuration, retry behavior, and response typing.
 
@@ -196,7 +196,7 @@ question = llm.Question[llm.simple_answers.SimpleInteger](
     config=llm.GenericConfig(
         provider="gemini",
         api_key="<YOUR GEMINI API KEY>",
-        response_model=llm.simple_answers.SimpleInteger)
+        response_model=int)
 )
 ```
 This allows LLMterface to validate and return structured responses automatically.
@@ -230,7 +230,7 @@ By default, schema validation failures cause the prompt to be augmented with a s
 
 ---
 
-### `GenericConfig[TResponse]`
+### `GenericConfig[TRes: AllowedResponseTypes = str](BaseModel)`
 
 `GenericConfig` is the provider-agnostic configuration model used throughout LLMterface.
 
@@ -254,7 +254,7 @@ config = llm.GenericConfig(
     api_key="<YOUR API KEY>",
     model=llm.GenericModelType.text_lite,
     temperature=0.2,
-    response_model=llm.simple_answers.SimpleString,
+    response_model=float,
     provider_overrides={
         "gemini": gemini.GeminiConfig(
             api_key="<YOUR GEMINI API KEY>",

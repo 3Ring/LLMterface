@@ -2,29 +2,22 @@ import json
 import typing as t
 
 import llmterface.exceptions as ex
-from llmterface.models.generic_config import GenericConfig
+from llmterface.models.generic_config import AllowedResponseTypes, GenericConfig
 from llmterface.models.question import Question
 from llmterface.providers.discovery import get_provider_chat, get_provider_config
 from llmterface.providers.provider_chat import ProviderChat
 from llmterface.providers.provider_config import ProviderConfig
-from pydantic import BaseModel
-
-TChatCls = t.TypeVar("TChatCls", bound=ProviderChat)
-
-TAns = t.TypeVar("TAns", bound=BaseModel)
 
 
-class GenericChat[TChatCls]:
+class GenericChat[TRes: AllowedResponseTypes]:
     def __init__(
         self,
         id: str,
-        client_chat: TChatCls | None = None,
-        config: GenericConfig | ProviderConfig | None = None,
+        client_chat: ProviderChat | None = None,
+        config: GenericConfig[TRes] | None = None,
     ):
         self.id = id
         self.client = client_chat
-        if isinstance(config, ProviderConfig):
-            config = GenericConfig(provider=config.PROVIDER, provider_overrides={config.PROVIDER: config})
         self.config = config
 
     @staticmethod
@@ -42,7 +35,11 @@ class GenericChat[TChatCls]:
 
         return provider_config_cls.from_generic_config(config)
 
-    def ask(self, question: Question[TAns]) -> TAns:
+    @t.overload
+    def ask(self, question: Question[None]) -> TRes: ...
+    @t.overload
+    def ask[TReturn: AllowedResponseTypes](self, question: Question[TReturn]) -> TReturn: ...
+    def ask(self, question: Question):
         """
         Ask a question using the chat's AI client and store the response.
         """
@@ -55,7 +52,7 @@ class GenericChat[TChatCls]:
         except Exception as e:
             raise ex.ClientError(f"Error while asking question to AI client: [{type(e)}]{e}") from e
 
-    def _ask(self, question: Question[TAns], provider_config: ProviderConfig) -> TAns:
+    def _ask(self, question: Question[TRes], provider_config: ProviderConfig) -> TRes:
         retries = 0
         res = None
         while True:
