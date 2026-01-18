@@ -1,6 +1,6 @@
 [project]
 name = "llmterface"
-version = "0.1.2"
+version = "0.2.0"
 description = "Intentionally Simple. Generic LLM interface"
 authors = [
     {name = "D. Zachary Wheeler",email = "celestialswashbuckler@gmail.com"}
