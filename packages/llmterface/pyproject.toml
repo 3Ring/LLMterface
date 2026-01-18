@@ -19,7 +19,6 @@ keywords = [
 
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -31,7 +30,7 @@ classifiers = [
     "Topic :: Utilities",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
-requires-python = ">=3.12,<4.0"
+requires-python = ">=3.13,<4.0"
 dependencies = [
     "pydantic>=2.12.5,<3.0.0"
 ]
