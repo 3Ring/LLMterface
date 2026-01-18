@@ -1,6 +1,7 @@
 import typing as t
-from pydantic import BaseModel, Field
+
 from llmterface.models.generic_model_types import GenericModelType
+from pydantic import BaseModel, Field
 
 
 class ConfigBase(BaseModel):

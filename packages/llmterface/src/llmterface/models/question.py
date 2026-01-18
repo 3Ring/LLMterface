@@ -1,26 +1,22 @@
-import typing as t
+from __future__ import annotations
 
+import typing as t
 from textwrap import dedent
-from pydantic import BaseModel, Field, ConfigDict
 
 import llmterface.exceptions as ex
-from llmterface.models.generic_config import GenericConfig
+from llmterface.models.generic_config import AllowedResponseTypes, GenericConfig
 from llmterface.models.generic_response import GenericResponse
+from pydantic import BaseModel, ConfigDict, Field
 
-TRes = t.TypeVar("TRes", bound=BaseModel)
 
-
-class Question(BaseModel, t.Generic[TRes]):
+class Question[TRes: AllowedResponseTypes](BaseModel):
     model_config = ConfigDict(extra="forbid")
-    config: t.Optional[GenericConfig[TRes]] = Field(
+    config: GenericConfig[TRes] | None = Field(
         default=None,
-        description="Optional configuration for this question."
-        "This will override chat and module level configurations.",
+        description="Optional configuration for this question.This will override chat and module level configurations.",
     )
     question: str = Field(default="", description="The question to ask the AI.")
-    max_retries: int = Field(
-        default=1, description="Maximum number of retries for this question."
-    )
+    max_retries: int = Field(default=1, description="Maximum number of retries for this question.")
 
     def get_question(self) -> str:
         """
@@ -31,11 +27,11 @@ class Question(BaseModel, t.Generic[TRes]):
 
     @staticmethod
     def on_retry(
-        q: "Question",
-        response: t.Optional[GenericResponse] = None,
-        e: t.Optional[Exception] = None,
+        q: Question[TRes],
+        response: GenericResponse | None = None,
+        e: Exception | None = None,
         retries: int = 0,
-    ) -> t.Optional["Question"]:
+    ) -> Question[TRes] | None:
         """
         Override this method to provide custom retry logic.
         This method should return a new Question instance to retry with
@@ -62,7 +58,7 @@ class Question(BaseModel, t.Generic[TRes]):
             return q.__class__.model_validate(data)
         return None
 
-    def get_config(self) -> t.Optional[GenericConfig]:
+    def get_config(self) -> TRes:
         """
         Returns a dictionary of configuration options for the question.
         Subclasses can override this method to get fancy
@@ -72,3 +68,13 @@ class Question(BaseModel, t.Generic[TRes]):
     @property
     def prompt(self) -> str:
         return self.get_question()
+
+    def with_prioritized_config(
+        self, ordered_configs: t.Sequence[GenericConfig[AllowedResponseTypes] | None]
+    ) -> Question[AllowedResponseTypes]:
+        if self.config is not None:
+            return self
+        for cfg in ordered_configs:
+            if cfg is not None:
+                return self.model_copy(update={"config": cfg})
+        raise RuntimeError("No configuration available to prioritize.")

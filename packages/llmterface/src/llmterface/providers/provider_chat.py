@@ -1,24 +1,23 @@
 import typing as t
 from abc import ABC, abstractmethod
 
-from llmterface.models.question import Question
-from llmterface.models.generic_response import GenericResponse
+from pydantic import BaseModel, ConfigDict, Field
+
 from llmterface.models.generic_config import GenericConfig
+from llmterface.models.generic_response import GenericResponse
+from llmterface.models.question import Question
 from llmterface.providers.provider_config import ProviderConfig
 
 
-class ProviderChat(ABC):
+class ProviderChat(BaseModel, ABC):
+    model_config = ConfigDict(extra="forbid")
 
-    def __init__(
-        self,
-        id: str,
-        config: t.Optional[GenericConfig] = None,
-    ):
-        self.id = id
-        self.config = config
+    PROVIDER: t.ClassVar[str] = NotImplemented
+    id: str = Field(..., description="Unique identifier for the chat instance.")
+    config: GenericConfig | None = Field(default=None, description="Configuration for the chat instance.")
 
     @abstractmethod
-    def ask(self, question: Question, client_config: ProviderConfig) -> GenericResponse:
+    def ask(self, question: Question, provider_config: ProviderConfig) -> GenericResponse:
         """
         Ask a question to the AI chat provider.
         """

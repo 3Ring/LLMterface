@@ -1,44 +1,69 @@
-import typing as t
 import logging
-from contextlib import contextmanager
+import typing as t
 import uuid
-import json
+from contextlib import contextmanager
 
-from pydantic import BaseModel
-
-import llmterface.exceptions as ex
-from llmterface.models.question import Question
-from llmterface.models.simple_answers import SimpleString
 from llmterface.models.generic_chat import GenericChat
-from llmterface.models.generic_config import GenericConfig
+from llmterface.models.generic_config import AllowedResponseTypes, GenericConfig
+from llmterface.models.question import Question
 
 logger = logging.getLogger("llmterface")
 
-TAns = t.TypeVar("TAns", bound=BaseModel)
 
-
-class LLMterface:
-
+class LLMterface[TRes: AllowedResponseTypes]:
     def __init__(
         self,
-        config: t.Optional[GenericConfig] = None,
-        chats: t.Optional[dict[str, GenericChat]] = None,
+        config: GenericConfig[TRes] | None = None,
+        chats: dict[str, GenericChat] = None,
     ):
         if chats is None:
             chats = dict()
         self.chats = chats
         self.base_config = config
 
+    @t.overload
+    def ask(self, question: Question[None] | str, chat_id: None = None) -> TRes: ...
+    @t.overload
+    def ask(self, question: Question[None] | str, chat_id: str) -> AllowedResponseTypes: ...
+    @t.overload
+    def ask(self, question: str, chat_id: str) -> AllowedResponseTypes: ...
+    @t.overload
+    def ask[TReturn: AllowedResponseTypes](
+        self, question: Question[TReturn], chat_id: str | None = None
+    ) -> TReturn: ...
+    def ask(
+        self,
+        question: Question | str,
+        chat_id: str | None = None,
+    ):
+        if isinstance(question, str):
+            question: Question[str] = Question(
+                question=question,
+            )
+        if chat_id:
+            chat = self.chats.get(chat_id)
+            if not chat:
+                raise KeyError(f"Chat with id '{chat_id}' not found.")
+            question = question.with_prioritized_config([chat.config, self.base_config])
+            return chat.ask(question)
+        question = question.with_prioritized_config([self.base_config])
+        with self.temp_chat(config=None, provider=question.config.provider) as temp:
+            return temp.ask(question)
+
     @contextmanager
     def temp_chat(
-        self, config: GenericConfig | None
-    ) -> t.Generator[GenericChat, None, None]:
-        if not config and not self.base_config:
-            raise RuntimeError("Either a config or base_config must be provided.")
+        self, config: GenericConfig[TRes] | None = None, provider: str | None = None
+    ) -> t.Generator[GenericChat[TRes]]:
+        provider = (
+            provider
+            or (config.provider if config else None)
+            or (self.base_config.provider if self.base_config else None)
+        )
+        if not provider:
+            raise ValueError("Provider must be specified either in config or as an argument for temporary chat.")
         chat_id = f"temp-{uuid.uuid4().hex}"
-        config = config or self.base_config
         chat = GenericChat.create(
-            provider=config.provider,
+            provider=provider,
             chat_id=chat_id,
             config=config,
         )
@@ -55,87 +80,12 @@ class LLMterface:
             chat.close()
         self.chats.clear()
 
-    @t.overload
-    def ask(
-        self,
-        question: Question[TAns],
-        chat_id: t.Optional[str] = None,
-    ) -> TAns: ...
-    @t.overload
-    def ask(
-        self,
-        question: Question[None],
-        chat_id: t.Optional[str] = None,
-    ) -> SimpleString: ...
-    @t.overload
-    def ask(
-        self,
-        question: str,
-        chat_id: t.Optional[str] = None,
-    ) -> SimpleString: ...
-    def ask(
-        self,
-        question: Question[TAns] | str,
-        chat_id: t.Optional[str] = None,
-    ) -> TAns | SimpleString:
-
-        if isinstance(question, str):
-            question: Question[SimpleString] = Question(
-                question=question,
-            )
-        if chat_id:
-            chat = self.chats.get(chat_id)
-            conf = chat.config
-            if not chat:
-                raise KeyError(f"Chat with id '{chat_id}' not found.")
-            return self._ask(question, chat)
-        with self.temp_chat(question.config) as temp:
-            return self._ask(question, temp)
-
-    def _ask(self, question: Question[TAns], chat: GenericChat) -> TAns:
-        retries = 0
-        res = None
-        if not question.config:
-            config = chat.config or self.base_config
-            if not config:
-                raise RuntimeError(
-                    "No config found for question or chat, and no base_config set."
-                )
-            question = question.model_copy(update={"config": config})
-        while True:
-            try:
-                res = chat.ask(question)
-                json_res = json.loads(res.text)
-                return question.config.response_model.model_validate(json_res)
-            except ex.AiHandlerError:
-                raise
-            except Exception as e:
-                if isinstance(e, (json.JSONDecodeError, ValueError)):
-                    exc = ex.SchemaError(
-                        f"Error parsing response: [{type(e)}]{e}", original_exception=e
-                    )
-                else:
-                    exc = ex.ProviderError(
-                        f"Error from provider: [{type(e)}]{e}", original_exception=e
-                    )
-                exc.__cause__ = e
-                retry_question = question.on_retry(
-                    question, response=res, e=exc, retries=retries
-                )
-                if not retry_question:
-                    raise exc from e
-                question = retry_question
-                retries += 1
-                continue
-
-    def create_chat(
+    def create_chat[TChatRes: AllowedResponseTypes](
         self,
         provider: str,
-        config: t.Optional[GenericConfig] = None,
-        chat_id: t.Optional[str] = None,
-    ) -> str:
-        chat = GenericChat.create(
-            provider, chat_id=chat_id or uuid.uuid4().hex, config=config
-        )
+        config: GenericConfig[TChatRes] | None = None,
+        chat_id: str | None = None,
+    ) -> GenericChat[TChatRes]:
+        chat = GenericChat.create(provider, chat_id=chat_id or uuid.uuid4().hex, config=config)
         self.chats[chat.id] = chat
-        return chat.id
+        return chat
